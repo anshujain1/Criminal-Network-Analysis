@@ -33,6 +33,7 @@ def burner_candidates(calls, window_days=5, max_calls=15):
         if span <= window_days and len(times) <= max_calls:
             candidates.append((pid, len(times), span))
     return sorted(candidates, key=lambda x: x[1])
+
 if __name__ == "__main__":
     calls = load_calls()
     G = build_graph(calls)
@@ -58,21 +59,3 @@ if __name__ == "__main__":
     print(f"\nDetected {len(communities)} communities via Louvain:")
     for i, c in enumerate(communities):
         print(f"  Community {i}: {sorted(c)[:8]}{'...' if len(c) > 8 else ''} ({len(c)} members)")
-
-
-
-print(G.number_of_nodes(), G.number_of_edges())
-
-degree = sorted(G.degree, key=lambda x: -x[1])[:10]
-print(degree)
-
-betweenness = nx.betweenness_centrality(G)
-top_between = sorted(betweenness.items(), key=lambda x: -x[1])[:10]
-print(top_between)
-
-print(burner_candidates(calls))
-
-communities = nx.community.louvain_communities(G, seed=42)
-print(len(communities))
-for c in communities:
-    print(c)
