@@ -8,32 +8,6 @@ NEO4J_USER = os.environ.get("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "<your-password>")
 
 
-def degree_centrality(session):
-    query = """
-        MATCH (p:Person)-[r:CALLED]-()
-        RETURN p.person_id AS person_id, p.name AS name, count(r) AS degree
-        ORDER BY degree DESC LIMIT 10
-    """
-    return list(session.run(query))
-
-
-def betweenness_centrality_gds(session):
-    session.run("""
-        CALL gds.graph.project(
-          'callGraph', 'Person',
-          {CALLED: {orientation: 'UNDIRECTED'}}
-        )
-    """)
-    result = list(session.run("""
-        CALL gds.betweenness.stream('callGraph')
-        YIELD nodeId, score
-        RETURN gds.util.asNode(nodeId).person_id AS person_id,
-               gds.util.asNode(nodeId).name AS name,
-               score
-        ORDER BY score DESC LIMIT 10
-    """))
-    session.run("CALL gds.graph.drop('callGraph')")
-    return result
 
 
 def community_detection_gds(session):
