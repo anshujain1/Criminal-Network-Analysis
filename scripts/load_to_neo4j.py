@@ -1,3 +1,25 @@
+"""
+load_to_neo4j.py
+
+Loads the synthetic dataset (data/*.csv) into a Neo4j database.
+
+Graph schema:
+  (:Person {person_id, name, phone})
+  (:Tower {tower_id, lat, lon})
+
+  (:Person)-[:CALLED {timestamp, duration_sec}]->(:Person)
+  (:Person)-[:PINGED {timestamp}]->(:Tower)
+
+Before running:
+  1. Create a free Neo4j Aura instance: https://neo4j.com/cloud/aura-free/
+  2. Copy your connection URI, username, and password
+  3. Set them as environment variables (recommended) or edit the constants below:
+       export NEO4J_URI="neo4j+s://xxxx.databases.neo4j.io"
+       export NEO4J_USER="neo4j"
+       export NEO4J_PASSWORD="your-password"
+  4. pip install neo4j
+"""
+
 import csv
 import os
 from neo4j import GraphDatabase
@@ -38,6 +60,9 @@ def load_towers(tx, towers):
 
 
 def load_calls(tx, calls):
+    # The burner number won't exist in people.csv, so MERGE creates a
+    # minimal Person node for it automatically (this is realistic --
+    # investigators often only have the number, not an identity, at first).
     tx.run("""
         UNWIND $rows AS row
         MERGE (caller:Person {person_id: row.caller_id})
@@ -67,16 +92,25 @@ def main():
     driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
     with driver.session() as session:
+        print("Clearing existing data...")
         session.execute_write(clear_database)
 
+        print("Creating constraints...")
         session.execute_write(create_constraints)
 
+        print(f"Loading {len(people)} people...")
         session.execute_write(load_people, people)
 
+        print(f"Loading {len(towers)} towers...")
         session.execute_write(load_towers, towers)
+
+        print(f"Loading {len(calls)} calls...")
+        # batch to keep transactions reasonably sized
         batch_size = 500
         for i in range(0, len(calls), batch_size):
             session.execute_write(load_calls, calls[i:i + batch_size])
+
+        print(f"Loading {len(pings)} tower pings...")
         for i in range(0, len(pings), batch_size):
             session.execute_write(load_pings, pings[i:i + batch_size])
 
