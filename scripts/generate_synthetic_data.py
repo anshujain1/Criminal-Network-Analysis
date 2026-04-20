@@ -1,6 +1,4 @@
 """
-generate_synthetic_data.py
-
 Generates a fully SYNTHETIC dataset for the Criminal Network Analysis project:
   - people.csv        : the individuals in the network
   - calls.csv         : call detail records (CDRs) between people
@@ -10,7 +8,7 @@ Generates a fully SYNTHETIC dataset for the Criminal Network Analysis project:
 IMPORTANT: All data here is randomly generated for demonstration purposes only.
 No real personal, telecom, or location data is used anywhere in this project.
 
-Design notes (read this before you run it):
+Design notes:
   - We build a "core network" of people who call each other somewhat regularly
     (this is your normal social graph).
   - We inject ONE burner-phone pattern: a short-lived phone number that calls
@@ -26,7 +24,7 @@ import csv
 import random
 from datetime import datetime, timedelta
 
-random.seed(42)  # reproducible output
+random.seed(42) 
 
 NUM_PEOPLE = 40
 NUM_TOWERS = 12
@@ -122,7 +120,7 @@ def inject_burner_phone(people, calls, start_call_id):
 def make_tower_pings(people, towers, burner, suspect_cluster):
     """
     Each person pings towers throughout the sim as their phone moves around.
-    We deliberately make the suspect cluster + burner ping the SAME tower
+    We deliberately make the suspect cluster + burner ping the SAME stower
     within the SAME tight time window at least once, to simulate co-location
     (e.g. a physical meeting) even though this isn't captured by call records.
     """
