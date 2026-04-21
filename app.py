@@ -37,3 +37,22 @@ def load_data():
 calls, people, towers, pings = load_data()
 
 st.write(f"Loaded {len(people)} people and {len(calls)} calls.")
+
+@st.cache_data
+def build_call_graph(calls):
+    G = nx.Graph()
+
+    for c in calls:
+        G.add_edge(
+            c["caller_id"],
+            c["callee_id"]
+        )
+
+    return G
+
+G = build_call_graph(calls)
+
+st.write(
+    f"Network contains {G.number_of_nodes()} people "
+    f"and {G.number_of_edges()} connections."
+)
