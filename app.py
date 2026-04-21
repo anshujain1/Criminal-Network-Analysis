@@ -57,9 +57,49 @@ st.write(
     f"and {G.number_of_edges()} connections."
 )
 
-G = build_call_graph(calls)
+@st.cache_data
+def compute_burner_candidates(
+    calls,
+    window_days=5,
+    max_calls=15
+):
+    from datetime import datetime
 
-st.write(
-    f"Network contains {G.number_of_nodes()} people "
-    f"and {G.number_of_edges()} connections."
+    by_person = {}
+
+    for c in calls:
+        for role in ("caller_id", "callee_id"):
+            pid = c[role]
+
+            by_person.setdefault(pid, []).append(
+                datetime.fromisoformat(c["timestamp"])
+            )
+
+    flagged = []
+
+    for pid, times in by_person.items():
+        times.sort()
+
+        span = (times[-1] - times[0]).days
+
+        if span <= window_days and len(times) <= max_calls:
+            flagged.append({
+                "person_id": pid,
+                "total_calls": len(times),
+                "active_window_days": span
+            })
+
+    return pd.DataFrame(flagged).sort_values("total_calls") 
+
+burner_df = compute_burner_candidates(calls)
+
+tab1, tab2 = st.tabs(
+    ["Risk Flags", "Network"]
 )
+
+with tab1:
+    st.subheader("Burner-phone heuristic")
+    st.dataframe(
+        burner_df,
+        use_container_width=True
+    )
