@@ -103,3 +103,35 @@ with tab1:
         burner_df,
         use_container_width=True
     )
+
+tab1, tab2 = st.tabs(
+    ["Person Lookup", "Risk Flags"]
+)
+
+with tab1:
+    st.subheader("Look up a person")
+
+    all_ids = sorted(
+        set(
+            list(people.keys())
+            + [c["caller_id"] for c in calls]
+            + [c["callee_id"] for c in calls]
+        )
+    )
+
+    selected = st.selectbox(
+        "Select a person ID",
+        all_ids
+    )
+
+    if selected in G:
+        neighbors = list(G.neighbors(selected))
+
+        st.write(
+            f"{len(neighbors)} direct contact(s)"
+        )
+
+        if neighbors:
+            st.write(", ".join(neighbors))
+    else:
+        st.write("No call records for this person.")
