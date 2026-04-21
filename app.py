@@ -56,3 +56,10 @@ st.write(
     f"Network contains {G.number_of_nodes()} people "
     f"and {G.number_of_edges()} connections."
 )
+
+G = build_call_graph(calls)
+
+st.write(
+    f"Network contains {G.number_of_nodes()} people "
+    f"and {G.number_of_edges()} connections."
+)
