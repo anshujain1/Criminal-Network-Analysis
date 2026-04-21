@@ -4,6 +4,13 @@ import networkx as nx
 import pandas as pd
 
 from scripts.geospatial_map import load_towers, load_pings
+from streamlit_folium import st_folium
+
+from scripts.geospatial_map import (
+    load_towers,
+    load_pings,
+    build_person_map
+)
 
 st.set_page_config(
     page_title="Network Link Analysis",
@@ -135,3 +142,44 @@ with tab1:
             st.write(", ".join(neighbors))
     else:
         st.write("No call records for this person.")
+col1, col2 = st.columns([1, 1.2])
+
+with col1:
+    st.markdown("#### Direct contacts")
+
+    if selected in G:
+        neighbors = list(G.neighbors(selected))
+        st.write(f"{len(neighbors)} direct contact(s)")
+
+        if neighbors:
+            st.code(
+                ", ".join(neighbors),
+                language=None
+            )
+    else:
+        st.write("No call records for this person.")
+
+with col2:
+    st.markdown("#### Movement path")
+
+    person_has_pings = any(
+        p["person_id"] == selected
+        for p in pings
+    )
+
+    if person_has_pings:
+        m = build_person_map(
+            selected,
+            towers,
+            pings
+        )
+
+        st_folium(
+            m,
+            width=550,
+            height=420
+        )
+    else:
+        st.write(
+            "No tower ping data for this person."
+        )
