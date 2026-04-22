@@ -12,7 +12,12 @@ from scripts.geospatial_map import (
     load_pings,
     build_person_map
 )
-
+from scripts.geospatial_map import (
+    load_towers,
+    load_pings,
+    build_person_map,
+    build_overview_map
+)
 st.set_page_config(
     page_title="Network Link Analysis",
     layout="wide"
@@ -34,6 +39,58 @@ tab1, tab2, tab3 = st.tabs(
     ]
 )
 
+tab1, tab2, tab3, tab4 = st.tabs(
+    [
+        "Person Lookup",
+        "Risk Flags",
+        "Predicted Links",
+        "Network Overview"
+    ]
+)
+
+with tab4:
+    st.subheader("Full network overview")
+
+    degree = sorted(
+        G.degree,
+        key=lambda x: -x[1]
+    )[:10]
+
+    st.markdown(
+        "**Top 10 by degree centrality:**"
+    )
+
+    st.dataframe(
+        pd.DataFrame(
+            degree,
+            columns=["Person ID", "Connections"]
+        ),
+        use_container_width=True
+    )
+
+    communities = nx.community.louvain_communities(
+        G,
+        seed=42
+    )
+
+    st.markdown(
+        f"**Detected {len(communities)} communities:**"
+    )
+
+    for i, community in enumerate(communities):
+        st.write(
+            f"Community {i} "
+            f"({len(community)} members): "
+            f"{', '.join(sorted(community))}"
+        )
+
+    st.markdown("**Cell tower coverage:**")
+
+    st_folium(
+        build_overview_map(towers),
+        width=1100,
+        height=420
+    )
 @st.cache_data
 def load_data():
     with open("data/calls.csv", newline="") as f:
