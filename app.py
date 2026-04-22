@@ -3,6 +3,7 @@ import streamlit as st
 import networkx as nx
 import pandas as pd
 
+from scripts.link_prediction import predict_links
 from scripts.geospatial_map import load_towers, load_pings
 from streamlit_folium import st_folium
 
@@ -25,7 +26,13 @@ DATA_DISCLAIMER = (
 )
 
 st.caption(DATA_DISCLAIMER)
-
+tab1, tab2, tab3 = st.tabs(
+    [
+        "Person Lookup",
+        "Risk Flags",
+        "Predicted Links"
+    ]
+)
 
 @st.cache_data
 def load_data():
@@ -183,3 +190,32 @@ with col2:
         st.write(
             "No tower ping data for this person."
         )
+    with tab3:
+        st.subheader("Predicted (unrecorded) links")
+
+        st.caption(
+        "Pairs who share several common contacts but have "
+        "never called each other directly."
+    )
+
+    jaccard_ranked, aa_ranked = predict_links(
+        G,
+        top_n=15
+    )
+
+    pred_df = pd.DataFrame(
+        [
+            {
+                "Person 1": u,
+                "Person 2": v,
+                "Jaccard Score": round(s, 3)
+            }
+            for u, v, s in jaccard_ranked
+            if s > 0
+        ]
+    )
+
+    st.dataframe(
+        pred_df,
+        use_container_width=True
+    )
