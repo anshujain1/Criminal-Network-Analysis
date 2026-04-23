@@ -25,6 +25,32 @@ st.set_page_config(
 
 st.title("Criminal Network Link Analysis")
 
+CUSTOM_CSS = """
+<style>
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+}
+
+div[data-testid="stMetric"] {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+}
+
+button[data-baseweb="tab"] {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+</style>
+"""
+
+st.markdown(
+    CUSTOM_CSS,
+    unsafe_allow_html=True
+)
 DATA_DISCLAIMER = (
     "All data shown is synthetically generated for demonstration purposes only. "
     "No real personal, telecom, or location data is used anywhere in this project."
