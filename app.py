@@ -12,6 +12,17 @@ from scripts.geospatial_map import (
     load_pings,
     build_person_map
 )
+calls, people, towers, pings = load_data()
+
+if not calls:
+    st.warning(
+        "No call records were found."
+    )
+
+if not people:
+    st.warning(
+        "No people records were found."
+    )
 from scripts.geospatial_map import (
     load_towers,
     load_pings,
