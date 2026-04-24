@@ -6,7 +6,7 @@ import pandas as pd
 from scripts.link_prediction import predict_links
 from scripts.geospatial_map import load_towers, load_pings
 from streamlit_folium import st_folium
-
+hide_index=True
 from scripts.geospatial_map import (
     load_towers,
     load_pings,
@@ -46,7 +46,46 @@ button[data-baseweb="tab"] {
 
 </style>
 """
+st.markdown(
+    """
+    <div style="padding: 1rem 0 0.5rem;">
+        <p style="font-size:13px; letter-spacing:0.08em;">
+            NETWORK INTELLIGENCE
+        </p>
 
+        <p style="font-size:34px; font-weight:600;">
+            Criminal Network Link Analysis
+        </p>
+
+        <p style="font-size:15px; opacity:0.75;">
+            Surfacing hidden connections, brokers, and anomalies
+            across a synthetic call and location graph.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+m1, m2, m3, m4 = st.columns(4)
+
+m1.metric(
+    "People in network",
+    G.number_of_nodes()
+)
+
+m2.metric(
+    "Recorded calls",
+    len(calls)
+)
+
+m3.metric(
+    "Burner numbers flagged",
+    len(burner_df)
+)
+
+m4.metric(
+    "Communities detected",
+    len(communities_preview)
+)
 st.markdown(
     CUSTOM_CSS,
     unsafe_allow_html=True
