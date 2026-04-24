@@ -1,3 +1,17 @@
+"""
+The demo/presentation layer. All the real analysis logic lives in
+scripts/*.py -- this file just wires it together into something
+you can click through in an interview or a viva.
+
+To Run: streamlit run app.py
+
+NOTE: This dashboard runs entirely on the local CSV files using NetworkX,
+so it works WITHOUT a Neo4j connection -- useful for demos and for anyone
+cloning the repo without wanting to set up Aura first. The Neo4j + Cypher
+pipeline (scripts/load_to_neo4j.py, scripts/analyze_network.py) is the
+"production" analysis path and is what the README documents as the core
+technical work.
+"""
 import csv
 import streamlit as st
 import networkx as nx
