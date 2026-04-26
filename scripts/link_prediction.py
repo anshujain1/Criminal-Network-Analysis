@@ -45,3 +45,11 @@ if __name__ == "__main__":
         f"Loaded graph: {G.number_of_nodes()} people, "
         f"{G.number_of_edges()} recorded connections"
     )
+
+    jaccard_ranked, aa_ranked = predict_links(G)
+
+    print("\n=== Top predicted links -- Jaccard ===")
+
+    for u, v, score in jaccard_ranked:
+        if score > 0:
+            print(f"{u} <-> {v}: {score:.3f}")
