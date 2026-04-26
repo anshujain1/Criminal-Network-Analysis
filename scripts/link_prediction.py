@@ -1,3 +1,25 @@
+"""
+link_prediction.py
+
+Predicts likely-but-unrecorded connections between people based on
+network structure alone (not on any personal attributes).
+
+Honest scope note: this uses classic, fully explainable graph-theoretic
+link prediction methods (Jaccard coefficient and Adamic-Adar index) --
+NOT a graph neural network. These are the same class of methods used as
+baselines in real link-prediction research and are far easier to defend
+in an interview than a GNN you can't fully explain. If you later have
+time, this is the natural place to swap in node2vec + a classifier as
+a "future work" upgrade.
+
+How to read the output: a high score between two people who have NEVER
+directly called each other means they share many common contacts --
+i.e. they likely know each other through the network even without a
+recorded direct link. This is a real technique used in investigative
+link analysis to surface "probable but unconfirmed" connections.
+
+Run: python scripts/link_prediction.py
+"""
 
 import csv
 import networkx as nx
