@@ -49,3 +49,31 @@ def test_does_not_flag_high_volume_number():
     assert "HEAVY_USER" not in flagged
 
 
+def test_single_call_person_is_flagged():
+    """
+    Edge case: someone with exactly ONE call ever has a zero-day window
+    and trivially low volume -- this WILL be flagged. This is a known,
+    intentional limitation: the heuristic can't distinguish 'burner
+    phone' from 'person who happens to have very sparse call records
+    in this dataset window' with only one data point. Worth stating
+    explicitly rather than discovering it live in an interview.
+    """
+    calls = [make_call("SPARSE", "A", 0, 1)]
+    flagged, _ = burner_candidates(calls, window_days=5, max_calls=15)
+    assert "SPARSE" in flagged
+
+
+def test_empty_call_list():
+    flagged, all_people = burner_candidates([], window_days=5, max_calls=15)
+    assert flagged == set()
+    assert all_people == set()
+
+
+def test_threshold_boundary_exact_window():
+    """Exactly at the window_days boundary should still be flagged (<=, not <)."""
+    calls = [
+        make_call("EDGE", "A", 0, 1),
+        make_call("EDGE", "B", 5, 2),  # exactly 5 days apart
+    ]
+    flagged, _ = burner_candidates(calls, window_days=5, max_calls=15)
+    assert "EDGE" in flagged
