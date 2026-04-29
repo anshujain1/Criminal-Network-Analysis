@@ -37,3 +37,26 @@ def test_burner_phone_not_in_original_people_list():
     person_ids = {p["person_id"] for p in people}
     assert burner["person_id"] not in person_ids
 
+
+def test_burner_calls_reference_real_people():
+    """Every call the burner makes must go to someone in the actual people list
+    (referential integrity -- catches bugs where a call references a person
+    that doesn't exist anywhere else in the dataset)."""
+    people = make_people(10)
+    calls, next_id = make_calls(people)
+    burner, cluster, calls = inject_burner_phone(people, calls, next_id)
+
+    person_ids = {p["person_id"] for p in people}
+    burner_calls = [c for c in calls if c["caller_id"] == burner["person_id"]]
+    assert len(burner_calls) > 0
+    for c in burner_calls:
+        assert c["callee_id"] in person_ids
+
+
+def test_call_ids_are_unique():
+    people = make_people(15)
+    calls, next_id = make_calls(people)
+    burner, cluster, calls = inject_burner_phone(people, calls, next_id)
+
+    call_ids = [c["call_id"] for c in calls]
+    assert len(call_ids) == len(set(call_ids)), "call_id collisions found"
